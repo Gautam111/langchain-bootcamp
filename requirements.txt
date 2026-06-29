@@ -1,4 +1,4 @@
 streamlit
 langchain-openai
 langchain-community
-duckduckgo-search==6.1.7
+duckduckgo-search
