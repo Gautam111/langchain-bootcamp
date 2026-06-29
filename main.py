@@ -7,7 +7,7 @@ load_dotenv()  # reads your .env file
 
 llm = ChatOpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_key=os.getenv("OPENROUTER_API_KEY", "None"),
     model="liquid/lfm-2.5-1.2b-thinking:free",
     temperature=0,
 )
