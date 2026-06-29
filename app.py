@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_community.tools import DuckDuckGoSearchRun
-from langchain.agents import initialize_agent, AgentType
+from langchain.agents import create_react_agent, AgentExecutor
+from langchain import hub
 load_dotenv()
 
 st.set_page_config(page_title="My First Agent", page_icon="🤖")
@@ -25,10 +26,19 @@ llm = ChatOpenAI(
 )
 search_tool = DuckDuckGoSearchRun()
 tools = [search_tool]
-agent_executor = initialize_agent(
-    tools=tools,
-    llm=llm,
-    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+search_tool = DuckDuckGoSearchRun()
+tools = [search_tool]
+
+# 2. Pull a standard reasoning prompt template from the LangChain hub
+prompt = hub.pull("hwchase17/react")
+
+# 3. Create the modern ReAct agent structure
+agent = create_react_agent(llm, tools, prompt)
+
+# 4. Create the final executor runtime environment
+agent_executor = AgentExecutor(
+    agent=agent, 
+    tools=tools, 
     verbose=True,
     handle_parsing_errors=True
 )
