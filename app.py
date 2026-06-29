@@ -4,76 +4,69 @@ from langchain_openai import ChatOpenAI
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain_core.messages import HumanMessage, AIMessage
 
-# Alternative standalone import pathway to bypass Streamlit's broken cache
-from langchain.agents import create_react_agent
-from langchain_core.runnables import RunnableConfig
-from langchain.agents.agent import AgentExecutor
-from langchain import hub
-load_dotenv()
+# --- App Layout Title Configuration ---
+st.title("🌐 My Search-Enabled AI Assistant")
 
-st.set_page_config(page_title="My First Agent", page_icon="🤖")
-st.title("🤖 My First Agent")
-
-SYSTEM_PROMPT = """You are a helpful, knowledgeable assistant.
-
-- Answer clearly and directly; don't pad responses with unnecessary hedging.
-- If you're not confident about a fact, say so explicitly rather than guessing.
-- Keep responses concise unless the user asks for more detail.
-- Ask a clarifying question only if the user's request is genuinely ambiguous."""
-
+# --- Initialize LLM with OpenRouter ---
+# Note the api_key fallback string to guarantee it boots smoothly
 llm = ChatOpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai",
+    api_key=os.getenv("OPENROUTER_API_KEY", "None"), 
     model="liquid/lfm-2.5-1.2b-thinking:free",
-    temperature=float(os.getenv("MODEL_TEMPERATURE", 0)),
+    temperature=float(os.getenv("MODEL_TEMPERATURE", 0))
 )
-search_tool = DuckDuckGoSearchRun()
-tools = [search_tool]
-search_tool = DuckDuckGoSearchRun()
-tools = [search_tool]
 
-# 2. Pull a standard reasoning prompt template from the LangChain hub
-prompt = hub.pull("hwchase17/react")
+# Initialize the search engine tool directly
+search_engine = DuckDuckGoSearchRun()
 
-# 3. Create the modern ReAct agent structure
-agent = create_react_agent(llm, tools, prompt)
-
-# 4. Create the final executor runtime environment
-agent_executor = AgentExecutor(
-    agent=agent, 
-    tools=tools, 
-    verbose=True,
-    handle_parsing_errors=True
-)
-# Memory box — survives across re-runs, unlike normal variables
+# --- Streamlit Chat UI Memory State ---
 if "messages" not in st.session_state:
-    st.session_state.messages = [SystemMessage(content=SYSTEM_PROMPT)]
+    st.session_state.messages = []
 
-# Redraw the whole conversation so far (since the script reruns each time)
-for msg in st.session_state.messages[1:]:  # skip system prompt, don't show it
-    role = "user" if isinstance(msg, HumanMessage) else "assistant"
+# Display previous messaging streams
+for msg in st.session_state.messages:
+    # Handle both LangChain Message objects and raw dictionaries safely
+    role = "user" if isinstance(msg, HumanMessage) or (isinstance(msg, dict) and msg.get("role") == "user") else "assistant"
+    content = msg.content if hasattr(msg, "content") else msg.get("content", "")
     with st.chat_message(role):
-        st.markdown(msg.content)
+        st.write(content)
 
-# Wait for new user input
-user_input = st.chat_input("Ask me anything...")
-
-if user_input:
-    st.session_state.messages.append(HumanMessage(content=user_input))
+# Process live user inputs
+if user_prompt := st.chat_input("Ask me about anything, current events, or future dates..."):
+    # Render user query bubble
+    st.session_state.messages.append(HumanMessage(content=user_prompt))
     with st.chat_message("user"):
-        st.markdown(user_input)
+        st.write(user_prompt)
 
     with st.chat_message("assistant"):
-        with st.spinner("Searching the web and thinking..."):
+        with st.spinner("Analyzing prompt and fetching data..."):
             try:
-                # 1. Changed llm.invoke to agent_executor.run (and pass text string, not the full chat history list)
-                response_text = agent_executor.run(user_prompt) 
+                # 1. Check if the user is asking about a real-time event or unknown date
+                lowered_prompt = user_prompt.lower()
+                need_search = any(word in lowered_prompt for word in ["when", "date", "2025", "2026", "news", "current", "weather", "puja"])
+
+                if need_search:
+                    # Execute live internet lookups directly using Python
+                    search_results = search_engine.run(user_prompt)
+                    
+                    # Package the live search data inside a system context instruction
+                    enriched_prompt = f"""
+                    The user is asking a question that requires real-time information.
+                    Here are the live search results from the internet:
+                    {search_results}
+                    
+                    Please use these search results to answer the user's question accurately.
+                    User Question: {user_prompt}
+                    """
+                    response = llm.invoke([HumanMessage(content=enriched_prompt)])
+                else:
+                    # Run standard conversational prompt logic directly
+                    response = llm.invoke([HumanMessage(content=user_prompt)])
                 
-                # 2. Markdown now renders the raw text string returned by the agent
-                st.markdown(response_text)
+                # Render response and save to session state memory
+                st.markdown(response.content)
+                st.session_state.messages.append(AIMessage(content=response.content))
                 
-                # 3. Append the response text cleanly to your AIMessage object
-                st.session_state.messages.append(AIMessage(content=response_text))
             except Exception as e:
-                st.error("Something went wrong reaching the AI model. Please try again in a moment.")
-                print(f"Agent loop execution failed: {e}")
+                st.error("Something went wrong processing your request. Please try again.")
+                print(f"Execution failed: {e}")
