@@ -53,7 +53,7 @@ if user_prompt := st.chat_input("Ask me about anything, current events, or futur
                     final_prompt = user_prompt
                 
                 # FIX: We pass the raw text prompt directly to ensure the model never crashes
-                response = llm.invoke(final_prompt)
+                response = llm.invoke(final_prompt).content
                 
                 # Render content blocks inside screen container
                 st.markdown(response.content)
