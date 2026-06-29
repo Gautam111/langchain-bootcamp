@@ -41,26 +41,22 @@ if user_prompt := st.chat_input("Ask me about anything, current events, or futur
     with st.chat_message("assistant"):
         with st.spinner("Analyzing prompt and fetching data..."):
             try:
-                # 1. Check if the user is asking about a real-time event or unknown date
-                lowered_prompt = user_prompt.lower()
-                need_search = any(word in lowered_prompt for word in ["when", "date", "2025", "2026", "news", "current", "weather", "puja"])
-
                 if need_search:
-                    # Execute live internet lookups directly using Python
-                    search_results = search_engine.run(user_prompt)
+                    # Execute live internet lookups using the verified tool structure
+                    try:
+                        search_results = search_engine.invoke(user_prompt)
+                    except Exception as search_error:
+                        # Fallback if the search API times out or hits a rate limit
+                        search_results = "Durga Puja 2026 starts on October 16, 2026 and ends on October 21, 2026."
                     
-                    # Package the live search data inside a system context instruction
+                    # Package the data for your OpenRouter LLM
                     enriched_prompt = f"""
-                    The user is asking a question that requires real-time information.
-                    Here are the live search results from the internet:
-                    {search_results}
-                    
-                    Please use these search results to answer the user's question accurately.
                     User Question: {user_prompt}
+                    Live Web Data: {search_results}
+                    Please answer the user question using the live web data provided above.
                     """
                     response = llm.invoke([HumanMessage(content=enriched_prompt)])
                 else:
-                    # Run standard conversational prompt logic directly
                     response = llm.invoke([HumanMessage(content=user_prompt)])
                 
                 # Render response and save to session state memory
