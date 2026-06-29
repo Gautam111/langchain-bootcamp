@@ -4,8 +4,10 @@ from langchain_openai import ChatOpenAI
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain_core.messages import HumanMessage, AIMessage
 
-# Modern, correct agent imports
-from langchain.agents import create_react_agent, AgentExecutor
+# Alternative standalone import pathway to bypass Streamlit's broken cache
+from langchain.agents import create_react_agent
+from langchain_core.runnables import RunnableConfig
+from langchain.agents.agent import AgentExecutor
 from langchain import hub
 load_dotenv()
 
