@@ -19,7 +19,7 @@ SYSTEM_PROMPT = """You are a helpful, knowledgeable assistant.
 llm = ChatOpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.getenv("OPENROUTER_API_KEY"),
-    model=os.getenv("MODEL_NAME"),
+    model=liquid/lfm-2.5-1.2b-thinking:free
     temperature=float(os.getenv("MODEL_TEMPERATURE", 0)),
 )
 
