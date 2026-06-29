@@ -1,64 +1,49 @@
-import streamlit as st
 import os
+import streamlit as streamlit  # Standard convention is usually 'import streamlit as st'
+from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from duckduckgo_search import DDGS
+from langchain_core.messages import SystemMessage, HumanMessage
 
-# --- App Layout Title Configuration ---
-st.title("🌐 My Search-Enabled AI Assistant")
+# Load environment variables
+load_dotenv()
 
-# --- Initialize LLM with OpenRouter ---
+# App layout and title
+streamlit.set_page_config(page_title="AI Assistant", page_icon="🤖")
+streamlit.title("🤖 Chat AI Assistant")
+
+# Initialize the Language Model
 llm = ChatOpenAI(
-    base_url="https://openrouter.ai",
-    api_key=os.getenv("OPENROUTER_API_KEY", "None"), 
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
     model="liquid/lfm-2.5-1.2b-thinking:free",
-    temperature=float(os.getenv("MODEL_TEMPERATURE", 0))
+    temperature=0,
 )
 
-# --- Streamlit Chat UI Memory State ---
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+# Text area for user input
+user_question = streamlit.text_area("Ask your question:", placeholder="Type something here...")
 
-# Display previous messaging streams safely using clean text rules
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.write(msg["content"])
-
-# Process live user inputs
-if user_prompt := st.chat_input("Ask me about anything, current events, or future dates..."):
-    # Render user query bubble
-    st.session_state.messages.append({"role": "user", "content": user_prompt})
-    with st.chat_message("user"):
-        st.write(user_prompt)
-
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
+# Trigger API call when user clicks the button
+if streamlit.button("Submit"):
+    if user_question.strip() == "":
+        streamlit.warning("Please enter a question before submitting.")
+    else:
+        # Show a loading spinner during the API request
+        with streamlit.spinner("Thinking..."):
+            messages = [
+                SystemMessage(content="""You are a helpful, knowledgeable assistant.
+- Answer clearly and directly; don't pad responses with unnecessary hedging.
+- If you're not confident about a fact, say so explicitly rather than guessing.
+- Keep responses concise unless the user asks for more detail.
+- Ask a clarifying question only if the user's request is genuinely ambiguous."""),
+                HumanMessage(content=user_question),
+            ]
+            
             try:
-                # Check if the user query requests real-time data lookups
-                lowered_prompt = user_prompt.lower()
-                need_search = any(word in lowered_prompt for word in ["when", "date", "2025", "2026", "news", "current", "weather", "puja"])
-
-                if need_search:
-                    try:
-                        with DDGS() as ddgs:
-                            results = [r["body"] for r in ddgs.text(user_prompt, max_results=3)]
-                            search_results = "\n".join(results)
-                    except Exception:
-                        # Resilient calendar fallback if web scraping hits a rate limit
-                        search_results = "Durga Puja 2026 takes place from October 16, 2026 to October 21, 2026."
-                    
-                    # Create a clean string message for the model
-                    final_prompt = f"Context from web search:\n{search_results}\n\nQuestion: {user_prompt}\nAnswer the question using the context above:"
-                else:
-                    # For normal questions, just pass the raw question text string
-                    final_prompt = user_prompt
+                response = llm.invoke(messages)
                 
-                # FIX: We pass the raw text prompt directly to ensure the model never crashes
-                response = llm.invoke(final_prompt).content
-                
-                # Render content blocks inside screen container
-                st.markdown(response.content)
-                st.session_state.messages.append({"role": "assistant", "content": response.content})
+                # Display the response in a neat markdown block
+                streamlit.subheader("Response:")
+                streamlit.markdown(response.content)
                 
             except Exception as e:
-                st.error("Something went wrong processing your request. Please try again.")
-                print(f"Execution failed: {e}")
+                streamlit.error(f"An error occurred: {e}")
