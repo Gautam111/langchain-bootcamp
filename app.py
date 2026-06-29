@@ -50,7 +50,7 @@ if user_input:
     with st.chat_message("user"):
         st.markdown(user_input)
 
-     with st.chat_message("assistant"):
+    with st.chat_message("assistant"):
         with st.spinner("Searching the web and thinking..."):
             try:
                 # 1. Changed llm.invoke to agent_executor.run (and pass text string, not the full chat history list)
