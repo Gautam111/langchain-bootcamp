@@ -76,3 +76,6 @@ xxhash==3.8.0
 zstandard==0.25.0
 duckduckgo-search
 langchain-community
+streamlit
+langchain-openai
+langchainhub
