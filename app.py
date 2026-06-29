@@ -3,7 +3,8 @@ import streamlit as st
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
-
+from langchain_community.tools import DuckDuckGoSearchRun
+from langchain.agents import initialize_agent, AgentType
 load_dotenv()
 
 st.set_page_config(page_title="My First Agent", page_icon="🤖")
@@ -22,7 +23,15 @@ llm = ChatOpenAI(
     model="liquid/lfm-2.5-1.2b-thinking:free",
     temperature=float(os.getenv("MODEL_TEMPERATURE", 0)),
 )
-
+search_tool = DuckDuckGoSearchRun()
+tools = [search_tool]
+agent_executor = initialize_agent(
+    tools=tools,
+    llm=llm,
+    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    verbose=True,
+    handle_parsing_errors=True
+)
 # Memory box — survives across re-runs, unlike normal variables
 if "messages" not in st.session_state:
     st.session_state.messages = [SystemMessage(content=SYSTEM_PROMPT)]
