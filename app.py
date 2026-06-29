@@ -53,11 +53,11 @@ if user_prompt := st.chat_input("Ask me about anything, current events, or futur
                     final_prompt = user_prompt
                 
                 # FIX: We pass the raw text prompt directly to ensure the model never crashes
-                response = llm.predict(final_prompt)
+                response = llm.invoke(final_prompt)
                 
                 # Render content blocks inside screen container
-                st.markdown(response)
-                st.session_state.messages.append({"role": "assistant", "content": response})
+                st.markdown(response.content)
+                st.session_state.messages.append({"role": "assistant", "content": response.content})
                 
             except Exception as e:
                 st.error("Something went wrong processing your request. Please try again.")
