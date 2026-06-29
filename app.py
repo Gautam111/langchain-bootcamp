@@ -50,12 +50,17 @@ if user_input:
     with st.chat_message("user"):
         st.markdown(user_input)
 
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
+     with st.chat_message("assistant"):
+        with st.spinner("Searching the web and thinking..."):
             try:
-                response = llm.invoke(st.session_state.messages)
-                st.markdown(response.content)
-                st.session_state.messages.append(AIMessage(content=response.content))
+                # 1. Changed llm.invoke to agent_executor.run (and pass text string, not the full chat history list)
+                response_text = agent_executor.run(user_prompt) 
+                
+                # 2. Markdown now renders the raw text string returned by the agent
+                st.markdown(response_text)
+                
+                # 3. Append the response text cleanly to your AIMessage object
+                st.session_state.messages.append(AIMessage(content=response_text))
             except Exception as e:
                 st.error("Something went wrong reaching the AI model. Please try again in a moment.")
-                print(f"LLM call failed: {e}")  # shows up in your terminal, not the user's screen
+                print(f"Agent loop execution failed: {e}")
