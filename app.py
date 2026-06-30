@@ -85,7 +85,7 @@ st.markdown(
 # --------------------------------------------------------------------------
 llm = ChatOpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key=st.secrets["OPENROUTER_API_KEY", "None"],
+    api_key=st.secrets["OPENROUTER_API_KEY"],
     model="liquid/lfm-2.5-1.2b-thinking:free",
     temperature=0,
 )
