@@ -25,59 +25,51 @@ LOGO_SVG = f"""
 """
 
 st.markdown(
-    f"""
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap');
-        html, body, [class*="css"] {{ font-family: 'Inter', sans-serif; }}
-        .stApp {{ background-color: {PARCHMENT}; }}
-
-        .gk-header {{
-            display: flex; align-items: center; gap: 14px;
-            padding: 18px 22px; background-color: {INK};
-            border-radius: 16px; margin-bottom: 28px;
-            box-shadow: 0 4px 14px rgba(27,42,74,0.18);
-        }}
-        .gk-header h1 {{
-            font-family: 'Fraunces', serif; font-weight: 600;
-            font-size: 22px; color: {PARCHMENT}; margin: 0;
-        }}
-        .gk-header p {{
-            font-size: 13px; color: {AMBER}; margin: 0;
-            letter-spacing: 0.4px; text-transform: uppercase;
-        }}
-
-        [data-testid="stChatMessage"] {{ padding: 4px 0; }}
-
-        div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) {{
-            flex-direction: row-reverse;
-        }}
-        div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) .stChatMessageContent {{
-            background-color: {AMBER}; color: {INK};
-            border-radius: 16px 16px 4px 16px; padding: 10px 16px; font-weight: 500;
-        }}
-        div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarAssistant"]) .stChatMessageContent {{
-            background-color: {INK_SOFT}; color: {PARCHMENT};
-            border-radius: 16px 16px 16px 4px; padding: 10px 16px;
-        }}
-
-        [data-testid="stChatInput"] {{
-            background-color: {PARCHMENT_2}; border-radius: 14px; border: 1.5px solid {AMBER};
-        }}
-        [data-testid="stChatInput"] textarea {{ color: {INK}; }}
-
-        ::-webkit-scrollbar {{ width: 8px; }}
-        ::-webkit-scrollbar-thumb {{ background: {INK_MUTED}; border-radius: 8px; }}
-    </style>
-
-    <div class="gk-header">
-        {LOGO_SVG}
-        <div>
-            <h1>Chat AI · GK Assistant</h1>
-            <p>Ask anything · General Knowledge</p>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
+f"""<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap');
+html, body, [class*="css"] {{ font-family: 'Inter', sans-serif; }}
+.stApp {{ background-color: {PARCHMENT}; }}
+.gk-header {{
+display: flex; align-items: center; gap: 14px;
+padding: 18px 22px; background-color: {INK};
+border-radius: 16px; margin-bottom: 28px;
+box-shadow: 0 4px 14px rgba(27,42,74,0.18);
+}}
+.gk-header h1 {{
+font-family: 'Fraunces', serif; font-weight: 600;
+font-size: 22px; color: {PARCHMENT}; margin: 0;
+}}
+.gk-header p {{
+font-size: 13px; color: {AMBER}; margin: 0;
+letter-spacing: 0.4px; text-transform: uppercase;
+}}
+[data-testid="stChatMessage"] {{ padding: 4px 0; }}
+div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) {{
+flex-direction: row-reverse;
+}}
+div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) .stChatMessageContent {{
+background-color: {AMBER}; color: {INK};
+border-radius: 16px 16px 4px 16px; padding: 10px 16px; font-weight: 500;
+}}
+div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarAssistant"]) .stChatMessageContent {{
+background-color: {INK_SOFT}; color: {PARCHMENT};
+border-radius: 16px 16px 16px 4px; padding: 10px 16px;
+}}
+[data-testid="stChatInput"] {{
+background-color: {PARCHMENT_2}; border-radius: 14px; border: 1.5px solid {AMBER};
+}}
+[data-testid="stChatInput"] textarea {{ color: {INK}; }}
+::-webkit-scrollbar {{ width: 8px; }}
+::-webkit-scrollbar-thumb {{ background: {INK_MUTED}; border-radius: 8px; }}
+</style>
+<div class="gk-header">
+{LOGO_SVG}
+<div>
+<h1>Chat AI · GK Assistant</h1>
+<p>Ask anything · General Knowledge</p>
+</div>
+</div>""",
+unsafe_allow_html=True,
 )
 
 # --------------------------------------------------------------------------
