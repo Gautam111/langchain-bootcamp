@@ -105,7 +105,7 @@ if "messages" not in st.session_state:
     ]
 
 for msg in st.session_state.messages:
-    avatar = "🧑" if msg["role"] == "user" else "✦"
+    avatar = "🧑" if msg["role"] == "user" else "✨"
     with st.chat_message(msg["role"], avatar=avatar):
         st.markdown(msg["content"])
 
@@ -117,7 +117,7 @@ if prompt := st.chat_input("Type your question..."):
     with st.chat_message("user", avatar="🧑"):
         st.markdown(prompt)
 
-    with st.chat_message("assistant", avatar="✦"):
+    with st.chat_message("assistant", avatar="✨"):
         with st.spinner("Thinking..."):
             try:
                 # Rebuild LangChain message history from session state
